@@ -39,7 +39,7 @@ update
 	}
   	current.chapter = Path.GetFileNameWithoutExtension(current.chapter);
 
-  	if(string.IsNullOrEmpty(current.chapter) || current.chapter == "LoadLevel"){
+  	if(string.IsNullOrEmpty(current.chapter)){
     current.chapter = old.chapter;
   	}
   	if(settings["Hallway"] != true){
@@ -56,7 +56,7 @@ update
 
 split
 {
-  	if((old.chapter != current.chapter) || ((current.chapter == "finalLevel") && (current.end != old.end))){
+  	if(((old.chapter != current.chapter) && (current.chapter == "LoadLevel")) || ((current.chapter == "finalLevel") && (current.end != old.end))){
 	return true;
  	}
 }
