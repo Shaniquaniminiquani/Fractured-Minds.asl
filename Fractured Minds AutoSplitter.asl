@@ -19,6 +19,17 @@ startup
 	settings.CurrentDefaultParent = null;
 	settings.Add("Load Removal");
 	settings.SetToolTip("Load Removal", "Pause Menu stops the timer as well as removing the time from 'LoadLevel' between Chapters");
+	
+	if(timer.CurrentTimingMethod == TimingMethod.RealTime){
+		var response = MessageBox.Show (
+			"You have Load Removal enabled in the settings\nFor this to work, you need to compare against Game Time\nCurrently, this is not the case\nWant to change it now?",
+			"Fractured Minds", 
+			MessageBoxButtons.YesNo, 
+			MessageBoxIcon.Question);
+		if (response == DialogResult.Yes){
+			timer.CurrentTimingMethod = TimingMethod.GameTime;
+		}
+	}
 }
 
 start
@@ -56,7 +67,7 @@ update
 
 split
 {
-  	if(((old.chapter != current.chapter) && (current.chapter == "LoadLevel")) || ((current.chapter == "finalLevel") && (current.end != old.end))){
+  	if(((old.chapter != current.chapter) && (current.chapter != "LoadLevel")) || ((current.chapter == "finalLevel") && (current.end != old.end))){
 	return true;
  	}
 }
