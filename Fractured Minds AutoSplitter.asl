@@ -53,21 +53,21 @@ update
   	if(string.IsNullOrEmpty(current.chapter)){
     current.chapter = old.chapter;
   	}
-  	if(settings["Hallway"] != true){
+	if(settings["Hallway"]){
 		if (current.chapter == "hallway2"){
-			current.chapter = old.chapter;
+			current.chapter = "hehexd";
 		}
   	}
-  	if(settings["Water Jump"] != true){
+  	if(settings["Water Jump"]){
 		if (current.chapter == "watermid"){
-			current.chapter = old.chapter;
+			current.chapter = "hehexd";
 		}
   	}
 }
 
 split
 {
-  	if(((old.chapter != current.chapter) && (current.chapter != "LoadLevel")) || ((current.chapter == "finalLevel") && (current.end != old.end))){
+  	if(((old.chapter != current.chapter) && (current.chapter != "LoadLevel") && (current.chapter != "watermid") && (current.chapter != "hallway2")) || ((current.chapter == "finalLevel") && (current.end != old.end))){
 	return true;
  	}
 }
