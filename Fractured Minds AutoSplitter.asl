@@ -1,8 +1,11 @@
-// Written by JayC_ 6/16/2023 intended for use with the amazon prime version of "Fractured Minds" available in the speedrun.com resources for the game.
+// Written by JayC_ 6/16/2023 intended for use with the amazon prime+ version of "Fractured Minds" available in the speedrun.com resources for the game.
+// Updated 7/07/2024
+
 state("FracturedMinds")
 {
 	string128 chapter: "UnityPlayer.dll", 0x1471DE8, 0x48, 0x10, 0x0;
 	int load: "UnityPlayer.dll", 0x144B908, 0xA7C;
+	int isCurLoading: "UnityPlayer.dll", 0x1471DE8, 0x38;
 	int end: "mono.dll", 0x225050, 0x3C;
 	int movement: "UnityPlayer.dll", 0x13B7AE0, 0x0, 0x0, 0x938;
 	int allowedMove: "UnityPlayer.dll", 0x1483DC0, 0x58, 0x38, 0x68;
@@ -11,14 +14,21 @@ state("FracturedMinds")
 
 startup
 {
-	settings.Add("Extra Levels");
+	settings.Add("Extra Levels", false);
 	settings.SetToolTip("Extra Levels", "Allows for additional splits for both the Hallway and WJ respectively");
 	settings.CurrentDefaultParent = "Extra Levels";
-	settings.Add("Hallway");
-	settings.Add("Water Jump");
+	settings.Add("Hallway", false);
+	settings.Add("Water Jump", false);
 	settings.CurrentDefaultParent = null;
 	settings.Add("Load Removal");
 	settings.SetToolTip("Load Removal", "Pause Menu stops the timer as well as removing the time from 'LoadLevel' between Chapters");
+	settings.Add("Any% X10", false);
+	settings.SetToolTip("Any% X10", "Enable to split on end screen only");
+	settings.CurrentDefaultParent = null;
+	settings.Add("Additional Options");
+	settings.CurrentDefaultParent = "Additional Options";
+	settings.Add("Reset on Exit");
+	settings.SetToolTip("Reset on Exit", "Self explanatory");
 	
 	if(timer.CurrentTimingMethod == TimingMethod.RealTime){
 		var response = MessageBox.Show (
@@ -30,6 +40,8 @@ startup
 			timer.CurrentTimingMethod = TimingMethod.GameTime;
 		}
 	}
+	
+	vars.TimerModel = new TimerModel {CurrentState = timer};
 }
 
 start
@@ -51,7 +63,7 @@ update
   	current.chapter = Path.GetFileNameWithoutExtension(current.chapter);
 
   	if(string.IsNullOrEmpty(current.chapter)){
-    current.chapter = old.chapter;
+		current.chapter = old.chapter;
   	}
 	if(settings["Hallway"]){
 		if (current.chapter == "hallway2"){
@@ -67,27 +79,35 @@ update
 
 split
 {
-  	if(((old.chapter != current.chapter) && (current.chapter != "LoadLevel") && (current.chapter != "watermid") && (current.chapter != "hallway2")) || ((current.chapter == "finalLevel") && (current.end != old.end))){
-	return true;
- 	}
+  	if((settings["Any% X10"] == false) && (((old.chapter != current.chapter) && (current.chapter != "LoadLevel") && (current.chapter != "watermid") && (current.chapter != "hallway2")) || ((current.chapter == "finalLevel") && (current.end != old.end)))){
+		return true;
+ 	} else {
+		if ((current.chapter == "finalLevel") && (current.end != old.end)){
+			return true;
+		}
+	}
 }
 
 reset
 {
-	if(current.chapter == "menu"){
-	return true;
+	if((current.chapter == "menu") && (settings["Any% X10"] == false)){
+		return true;
 	}
 }
 
 exit
 {
-	timer.IsGameTimePaused = true;
+	if(settings["Reset on Exit"]){
+		vars.TimerModel.Reset();
+	} else {
+		timer.IsGameTimePaused = true;
+	}
 }
 
 isLoading
 {
 	if(settings["Load Removal"]){
-		if(current.load == 1 || current.chapter == "LoadLevel"){
+		if((current.load == 1 && (settings["Any% X10"] == false)) || current.chapter == "LoadLevel" || ((current.chapter == "watermid") && (current.isCurLoading == 1))){
 			return true;
 		} else {
 			return false;
